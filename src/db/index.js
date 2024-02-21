@@ -14,4 +14,7 @@ const connectDB= async () => {
 }
 
 export default connectDB;
+// git add index.html
+// git commit -m "daily update"
+// git push origin main
 
