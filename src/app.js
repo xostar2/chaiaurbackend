@@ -10,7 +10,7 @@ app.use(cors({
     Credential:true
 })) //use =used for middleware
 
-export{app}
+
 //default export app
 
 app.use(express.json({limit : "16kb"}))//limiting the json data 
@@ -23,3 +23,4 @@ app.use(express.static("public"))//public assetes
 
 app.use(cookieParser())//set cooies parser
 
+export{app} 
