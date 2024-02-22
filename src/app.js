@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from "cors"
 import cookieParser from 'cookie-parser'//to use crud operations on users cookies 
-const app= express()
+const app = express();
 
 
 //====these all are app configration which are necessary  to have in the files 
@@ -23,4 +23,18 @@ app.use(express.static("public"))//public assetes
 
 app.use(cookieParser())//set cooies parser
 
-export{app} 
+
+//Routes import
+import userRouter from './routes/user.routes.js'
+
+//routes declareation ==now in this possition we can't just use app.get 
+// now becasue we saperated the routes so we have to use some middle ware to connect route
+
+app.use("/api/v1/users",userRouter)// "/user" become prefix isee esa url banega  v1 is version common prectice 
+//http://localhost:8000/api/v1/user/register
+
+
+
+
+
+export { app } 
