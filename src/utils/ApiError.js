@@ -1,4 +1,5 @@
-class ApiError extends Errors{
+import { Error } from "mongoose"
+class ApiError extends Error{
 
     constructor(
         statusCode,

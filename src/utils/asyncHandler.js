@@ -12,6 +12,9 @@ const asyncHandler =(requestHandler)=>{
 export{asyncHandler};
 
 
+//const asynchandler = () => {}
+//const asynchandler = (func) =>()=> {}
+//const asynchandler = (func) => async () => {}
 
 
 
