@@ -24,7 +24,7 @@ const userSchema=new Schema(
             trim:true,
             //index:true, //for seaching field enable
         },
-        fullname:{
+        fullName:{
             type:String,
             required:true,
             //unique:true,
@@ -77,7 +77,7 @@ const userSchema=new Schema(
 //next for for forword and at end call next
 userSchema.pre("save", async function(next){
     if(!this.isModified("password")) return next();//we use this for below problem
-    this.password=bcrypt.hash(this.password,10)//rounds
+    this.password = await bcrypt.hash(this.password,10)//rounds
     next() 
     
     //we can inject our own methods coustommethod
@@ -102,7 +102,7 @@ userSchema.methods.generateAccessToken=function(){
             _id:this._id,
             email:this.email,
             username:this.username,
-            fullname:this.fullname,
+            fullName:this.fullName,
         },//this was payload,
         process.env.ACCESS_TOKEN_SECRET,
         {

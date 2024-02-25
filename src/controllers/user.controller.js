@@ -18,6 +18,9 @@ const registerUser =asyncHandler( async (req,res)=>{
     // return response if user create and send error if error
 
     const {username,fullName,email,password}=req.body
+
+    console.log(req.body)
+
     console.log("email:",email);
     // if(fullname===""){
     //     throw new ApiError(400,"fullname is required")
@@ -33,7 +36,7 @@ const registerUser =asyncHandler( async (req,res)=>{
 
     //user exist or not
     //user is mongodb object
-    const existedUser= User.findOne({
+    const existedUser= await User.findOne({
         // now here we check that both email and user name exist or not
 
         $or:[ { username } , { email }]//it give you first match who hold this
@@ -44,10 +47,21 @@ const registerUser =asyncHandler( async (req,res)=>{
     }
     
     const avatarLocalPath=req.files?.avatar[0]?.path 
-    const coverImageLocalPath=req.files?.coverImage[0]?.path 
+
+    //console.log(avatarLocalPath)
+    // const coverImageLocalPath=req.files?.coverImage[0]?.path  becase it giveing us an error 
+     
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath=req.files.coverImage[0].path
+    }
+
     
     if(!avatarLocalPath){
-        throw new ApiError(400,"Avatar file is required")
+        throw new ApiError(400,
+            `avatar file is required path is :${avatarLocalPath}`
+            
+        )
     }
     //req.files multer give us and we have to do it optional chaing bcz may we multer give us that method or not we dont know really
 
