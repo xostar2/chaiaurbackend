@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
-
+import  Jwt  from "jsonwebtoken";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const generateAccessAndRefereshToken =async (userId)=>{
@@ -145,7 +145,7 @@ const loginUser= asyncHandler(async (req,res)=>{
      */
 
     const {email,username,password}=req.body
-    if(!username || !email) {
+    if(!(username || email)) {
         throw new ApiError(400,"username or password is required")
     }
 
@@ -221,10 +221,66 @@ const logoutUser = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200 ,{} ,"User Logged Out"))
 })
 
+//we using it when working with front end and someone eant to it want refresh token from front end to login user without email and password
+
+const refreshAccessToken = asyncHandler (async (req ,res)=>{
+
+    const inncomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+
+    if(inncomingRefreshToken){
+        throw new ApiError(401,"unauthrized request")
+    }
+
+    try {
+        const decodedToken=Jwt.verify(
+            inncomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+    
+        )//first token second secreat key  || not necessary that token always have payload thing
+    
+        const user = await User.findById(decodedToken?._id)
+        if(user){
+            throw new ApiError(401,"invalid refresh token")//database token
+        }
+    
+        if(inncomingRefreshToken != user?.refrehsToken){
+            throw new ApiError(401,"Refresh token is expired or used")
+    
+        }
+    
+        const options={
+            httpOnly:true,
+            secure:true
+        }
+        const {accessToken,newrefreshToken}=await generateAccessAndRefereshToken(user._id)
+    
+        return res
+        .status(200)
+        .cookie("accessToken",accessToken,options)
+        .cookie("refreshToken",newrefreshToken,options)
+        .json(
+            new ApiResponse(
+                200,
+                {accessToken,refreshToken:newrefreshToken},
+                "Access token refreshed"
+            )
+        )
+    
+    } catch (error) {
+
+        throw new ApiError(401,error?.message|| "INvalid refresh Token")  
+        // now we have to make a refresh token end point so when user try to check refresh token then frntend eng can varify that from that  end point
+    }
+
+
+})
+
+
 
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAccessToken
 
 }
