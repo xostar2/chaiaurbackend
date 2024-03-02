@@ -25,8 +25,6 @@ const generateAccessAndRefereshToken =async (userId)=>{
     }
 }
 
-
-
 //user register 
 const registerUser =asyncHandler( async (req,res)=>{
     //[1]:get user details from frontend===what details  i will take it depends apone what models i make for user
@@ -472,7 +470,69 @@ const getUserChannalProfile =asyncHandler(async (req,res)=>{
        )
 })
 
+const getWatchhistory= asyncHandler(async (req, res) => {
+        const user = await User.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(req.user._id)//because it is strng and we have to convert into mongodb id so thats the way to do it
 
+                }
+            },
+            {
+                $lookup: {
+                    from:"videos",
+                    localField:"watchHistory",
+                    foreignField:"_id",
+                    as:"watchHistory",
+
+                    pipeline: [
+                        {
+                            $lookup:{
+                                from:"users",
+                                localField:"owner",
+                                foreignField:"_id",
+                                as:"owner",
+
+                                pipeline:[
+                                    {
+                                        $project:{
+                                            fullName:1,
+                                            username:1,
+                                            avatar:1
+                                        }
+                                    }
+                                ]
+
+                            }
+                        },
+                        {
+                            $addFields:{
+                                owner:{
+                                    $first:"$owner"
+                                }
+                            }
+                            //for frontendwala
+                        }
+                        
+                    ]
+
+                },
+
+            }
+        ]) 
+
+        return res.
+        status(200)
+        .json(
+            
+                new ApiResponse(
+                    200,
+                    user[0].watchHistory,
+                    "watch history fetched successfully"
+                )
+            
+        )
+})
 
 export {
     registerUser,
@@ -484,6 +544,7 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannalProfile
+    getUserChannalProfile,
+    getWatchhistory
 
 }
